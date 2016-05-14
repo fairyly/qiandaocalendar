@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>微友</title>
+<link rel="stylesheet" href="__PUBLIC__/sign/css/index.css" />
+<link rel="stylesheet" href="__PUBLIC__/sign/css/sign.css" />
+<script type="text/javascript" src="__PUBLIC__/sign/js/jquery.min.js" ></script>
+<script type="text/javascript" src="__PUBLIC__/sign/js/index.js" ></script>
+<script type="text/javascript" src="__PUBLIC__/sign/js/calendar.js"></script>
+<script type="text/javascript">
+	var docEl = document.documentElement,
+	    resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize',
+	    recalc = function() {
+	        docEl.style.fontSize = 10 * (docEl.clientWidth / 320) + 'px';
+	    };
+	window.addEventListener(resizeEvt, recalc, false);
+	document.addEventListener('DOMContentLoaded', recalc, false);
+</script>
+</head>
+<body>
+	<section>
+		<div class="rili">
+			<div class="qiandao">
+				<p style="width:100%;height:1.7rem"></p>
+				<div class="today">今日签到</div>
+				<!-- <form action="{:U('sign/sign')}" method="post">					
+				<input type="submit" class="today" value="今日签到">
+				</form> -->
+				<div class="yqd"><div class="yiqiandao">已签到</div></div>
+				<p style="width:100%;height:10px"></p>
+				<div class="renshu">今日签到人数:<span>998</span></div>
+				<p style="width:100%;height:15px"></p>
+				<div class="jifen">
+					<!-- <div class="jifen1">
+						<span>98</span><br/>
+						<span>剩余积分</span>
+					</div> -->
+					<div class="jifen2">
+						<br/>
+						<span>连续签到<span><font color="red">10</font></span>天</span><br />
+						<span>一共签到<span><font color="red">20</font></span>天</span>
+					</div>
+				</div>
+				<p style="width:100%;height:10px"></p>
+			</div>
+			<div class="qdsuccess">
+				<div class="qdshow">
+					<p style="width:100%;height:2rem"></p>
+					<img src="__PUBLIC__/sign/images/duihao.png">
+					<h3>恭喜！签到成功！</h3>
+					<p style="width:100%;height:5px"></p>
+					<p style="font-size:0.8rem">本次签到增加<span> 5 </span>积分</p>
+					<p style="width:100%;height:5px"></p>
+					<div class="ok">OK</div>
+				</div>
+			</div>
+			<div class="rilicontent">
+				<div id="calendar"></div>
+			</div>
+			
+			<script type="text/javascript">
+			$(function(){
+				   //ajax获取日历json数据
+				   // var signList=[{"signDay":"10"},{"signDay":"11"},{"signDay":"12"},{"signDay":"13"}];
+				   var signList=[];
+			       calUtil.init(signList);
+				   var now=new Date;
+				   var year=now.getFullYear();
+				   // console.log(year);
+				   var month=now.getMonth()+1;
+				   // console.log(month);
+				   var day=now.getDate();
+				   console.log(day);
+				   $.ajax({  
+	                          type : "POST",  
+	                          url : "{:U('sign/getSignData')}",
+	                          data : {y:year,m:month},  
+	                          // timeout : 60000,  
+	                          success:function(data){  
+	                              signList=eval(data);  
+	                              console.log(signList);
+	                              // d = Object.keys(	d).map(function(k){return d});
+	                              // for(var key in list){
+	                              // 	console.log(key);
+	                              // }
+	                              // var d=list.trim();
+	                              // console.log(d[3]);
+                               //    signList=[{"signDay":d[1]},{"signDay":d[3]},{"signDay":d[5]},{"signDay":d[7]}];
+	                             calUtil.init(signList);
+	                          },
+	                          error:function(){
+	                          	console.log("ajax获取初始数据失败！");
+	                          } 
+	                        });	
+				   // var signList=[];
+				   // calUtil.init(signList);
+			    $(".today").click(function(){
+			    	// signList=[{"signDay":day}];
+                    // calUtil.init(signList);
+				    $.ajax({  
+                              type : "POST",  
+                              url : "{:U('sign/sign')}",
+                              // data : {data:dataUrl},  
+                              // timeout : 60000,  
+                              success:function(datas){  
+                                  var List=eval('('+datas+')');  
+                                  console.log(datas);
+                                  console.log(datas.length);
+                                  console.log(List.status);
+                                  if(List.status==1){
+                                  	signList=[{"signDay":day}];
+                                    calUtil.draw(signList);
+                                    $.ajax({  
+				                          type : "POST",  
+				                          url : "{:U('sign/getSignData')}",
+				                          data : {y:year,m:month},  
+				                          // timeout : 60000,  
+				                          success:function(data){  
+				                              signList=eval(data);  
+				                              console.log(signList);
+				                              // d = Object.keys(d).map(function(k){return d});
+				                              // for(var key in list){
+				                              // 	console.log(key);
+				                              // }
+				                              // var d=list.trim();
+				                              // console.log(d[3]);
+			                               //    signList=[{"signDay":d[1]},{"signDay":d[3]},{"signDay":d[5]},{"signDay":d[7]}];
+				                             calUtil.init(signList);
+				                          },
+				                          error:function(){
+				                          	console.log("ajax获取初始数据失败！");
+
+				                          } 
+				                        });	
+                                  }else{
+                                  	alert("您今天已经签到过了!");
+                                  } 
+                              },
+                              error:function(){
+                              	console.log("ajax获取失败！");
+                              } 
+                            });	
+					$(".qdsuccess").show();
+					// $(".qdsuccess").click(function(){
+					// 	$(".qdsuccess").hide();
+					// 	$(".yqd").show();
+					// 	$(".today").css("color","#bebdbd");
+					// })
+				});
+				$(".qdsuccess").click(function(){
+						$(".qdsuccess").hide();
+						$(".yqd").show();
+						$(".today").css("color","#bebdbd");
+				});
+			});
+			</script>
+			
+		</div>
+	</section>
+</body>
+</html>
